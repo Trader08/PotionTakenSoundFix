@@ -17,3 +17,4 @@ PTSF.settingsVars.defaultSettings		= {}
 PTSF.localizationVars					= {}
 PTSF.settingsVars.settings.buffFilters	= {}
 PTSF.masterSwitch						= true
+PTSF.toggle_potion_buffs_check_enabled	= false

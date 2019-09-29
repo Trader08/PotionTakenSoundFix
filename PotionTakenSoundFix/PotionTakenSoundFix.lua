@@ -53,6 +53,7 @@ local isPlayingPotionTaken 			= false --The 3 "isPlaying" are locks to prevent m
 local isPlayingPotionLostBuff		= false --Because the event is called for every buff given/lost by the potion
 local isPlayingPotionCooldownEnded	= false --This way we make sure we're not calling sound over sound
 local PlaySoundLockDelay			= 1000	 --1000ms delay should be enough yet accurate
+
 --}}}
 
 --=============================================================================================================
@@ -136,7 +137,7 @@ end --}}}
 
 function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime) --, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
 --(integer eventCode, integer changeType, integer effectSlot, string effectName, string unitTag, number beginTime, number endTime, integer stackCount, string iconName, string buffType, integer effectType, integer abilityType, integer statusEffectType, string unitName, integer unitId, integer abilityId, integer sourceUnitType
-	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime), true) --.." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
+	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime)) --.." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
 --	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType))
 	if(unitTag ~= "player") then
 	     PTSF.D("PTSF_potTaken triggered not on player")
@@ -245,12 +246,12 @@ function PTSF_toggle_potion_buffs_check(enable)
     	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, PTSF_INVENTORY_SINGLE_SLOT_UPDATE)
     	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_ITEM_USED, PTSF_INVENTORY_ITEM_USED)
     	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_EFFECT_CHANGED, PTSF_EFFECT_CHANGED) --Not using a different name because libPotionBuff' EVENT_EFFECT_CHANGED creates different ones
-    	PTSF.DG("Unknown Potion Buffs Finder is ON")
+    	PTSF.DG("Unknown Potion Buffs Finder is |c00FF00ON|r")
     else
     	EVENT_MANAGER:UnregisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     	EVENT_MANAGER:UnregisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_ITEM_USED)
     	EVENT_MANAGER:UnregisterForEvent(PTSF.addonVars.addonName, EVENT_EFFECT_CHANGED)
-    	PTSF.DG("Unknown Potion Buffs Finder is OFF")
+    	PTSF.DG("Unknown Potion Buffs Finder is |c00FF00OFF|r")
     end
 end
 
@@ -303,6 +304,30 @@ end
 --end of NEW 1.02 Unknown Potion Buffs Finder }}}
 
 --=============================================================================================================
+--	onArgCommand (command lines) {{{
+--=============================================================================================================
+function onArgCommand(arg)
+	if(arg == "" or arg == "-h" or arg == "--h" or arg == "-help" or arg == "help") then
+		PTSF.DG("======= Arguments =======")
+		PTSF.DG("/ptsf master_toggle (toggles ON/OFF the addon's inner workings)")
+		PTSF.DG("/ptsf buffsfinder_toggle (toggles ON/OFF potion buffs finder)")
+	elseif(arg == "master_toggle"  ) then
+		if(PTSF.masterSwitch) then
+        	PTSF.libPB:UnRegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName)
+        	PTSF.D("Master Switch is |cFF0000OFF|r (default sound without fix will play)", true)
+        	PTSF.masterSwitch = false
+        else
+        	PTSF.libPB:RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF_potTaken, REGISTER_FILTER_UNIT_TAG, "player")
+            PTSF.DG("Master Switch is |c00FF00ON|r")
+            PTSF.masterSwitch = true
+        end
+    elseif(arg == "buffsfinder_toggle") then
+    	PTSF.toggle_potion_buffs_check_enabled = not PTSF.toggle_potion_buffs_check_enabled
+        PTSF_toggle_potion_buffs_check(PTSF.toggle_potion_buffs_check_enabled)
+	end
+end --}}}
+
+--=============================================================================================================
 --	userInterfaceVolume {{{
 --=============================================================================================================
 --[[ UI VOLUME
@@ -324,6 +349,7 @@ end --}}}]]
 function PTSF.initialize()
 	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_PLAYER_ACTIVATED, PTSF_Player_Activated)
 	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_ADD_ON_LOADED, PTSF_addonLoaded)
+	SLASH_COMMANDS["/ptsf"] = onArgCommand
 end --}}}
 
 --=============================================================================================================

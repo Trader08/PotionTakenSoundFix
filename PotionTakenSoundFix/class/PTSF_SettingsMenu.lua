@@ -14,7 +14,7 @@ function PTSF.buildAddonMenu()
     local lockSoundPlay_Potion 					= false
     local lockSoundPlay_BuffLost				= false
     local lockSoundPlay_Cooldown 				= false
-    local toggle_potion_buffs_check_enabled 	= false
+
     PTSF.panelData    = {
         type                = "panel",
         name                = addonVars.settingsName,
@@ -459,12 +459,12 @@ end --}}}
             			.."4- Post the screen shot on ESOUI, you can use the 'feedback' button up top of this options' menu\n"
             			.."5- You can now disable this option and wait for a fix\n\n"
             			.."Thank you!",
-            	getFunc = function() return toggle_potion_buffs_check_enabled end,
+            	getFunc = function() return PTSF.toggle_potion_buffs_check_enabled end,
             	setFunc = function(value)
-                	toggle_potion_buffs_check_enabled = value
+                	PTSF.toggle_potion_buffs_check_enabled = value
                 	PTSF_toggle_potion_buffs_check(value)
                 end,
-                default = toggle_potion_buffs_check_enabled,
+                default = PTSF.toggle_potion_buffs_check_enabled,
                 width = "half",
             },
             }, --controls

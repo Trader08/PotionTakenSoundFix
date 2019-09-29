@@ -77,11 +77,11 @@ local function setControlValues(control, value, doNotPlaySound)
         PTSF.D("No control to update in function updateDisabledControl()!")
         return
     end
-    if(control == PotionTakenSoundFix_Settings_potionTakenSound) then --If we're selecting default potion taken sound, volume boost has nothing to do with it so play our "selected" sound
-        control.data.setFunc(value, false)
-    else
+--    if(control == PotionTakenSoundFix_Settings_potionTakenSound) then --If we're selecting default potion taken sound, volume boost has nothing to do with it so play our "selected" sound
+--        control.data.setFunc(value, false)
+--    else
         control.data.setFunc(value, doNotPlaySound)
-    end
+--    end
     control.slider:SetValue(value)
     control.slidervalue:SetText(value)
     --PTSF.addonMenu.util.RequestRefreshIfNeeded(control)
@@ -125,7 +125,7 @@ end --}}}
             					.."-Change the potion taken sound\n"
             					.."-Add a custom sound when you lose a potion buff\n"
             					.."-Add a custom sound when potion cooldown is over (you can take another one)\n"
-            					.."-Boost volume for each sound|r",
+            					.."-Volume booster for chosen sounds (few ones can't be boosted)|r",
         },
 
         --=============================================================================================================
@@ -178,12 +178,13 @@ end --}}}
             end,
             setFunc = function(idx, doNotPlaySound)
                 settings.potionTakenSound = idx
-                PTSF.D(SOUNDS[PTSF.sounds[idx]])
                 PotionTakenSoundFix_Settings_potionTakenSound.label:SetText("Sound: " .. PTSF.sounds[idx])
-                 if SOUNDS ~= nil and not doNotPlaySound then
+                 if SOUNDS ~= nil then
                     if(idx == 1 and SOUNDS[PTSF.sounds[idx]] == nil) then --Default ESO potion taken sound
+                    	PTSF.D("Played: DEFAULT potion sound")
                     	PlayItemSound(ITEM_SOUND_CATEGORY_POTION, ITEM_SOUND_ACTION_USE, true)
-                    elseif(idx ~= 2 and SOUNDS[PTSF.sounds[idx]] ~= nil) then
+                    elseif(idx ~= 2 and SOUNDS[PTSF.sounds[idx]] ~= nil and not doNotPlaySound) then
+                    	PTSF.D("Played: "..SOUNDS[PTSF.sounds[settings.potionTakenSound]])
                     	PlaySound(SOUNDS[PTSF.sounds[idx]])
                     end
                  end
@@ -205,6 +206,7 @@ end --}}}
             settings.potionTakenVolumeBoost = idy
                 if(SOUNDS ~= nil and settings.potionTakenSound > 2 and SOUNDS[PTSF.sounds[settings.potionTakenSound]] ~= nil) then
                     for i = 1, idy do
+                    	PTSF.D(i.."-LoopPlayed: "..SOUNDS[PTSF.sounds[settings.potionTakenSound]])
                         PlaySound(SOUNDS[PTSF.sounds[settings.potionTakenSound]])
                     end
                     lockSoundPlay_Potion = true
@@ -248,15 +250,15 @@ end --}}}
             getFunc = function()
                 return settings.potionLostBuffSound - 1
             end,
-            setFunc = function(idx)
+            setFunc = function(idx, doNotPlaySound)
                 idx = idx + 1 --Tricking the system so we don't use sound #1 as it's default potion sound
                 settings.potionLostBuffSound = idx
-                PTSF.D(SOUNDS[PTSF.sounds[idx]])
                 PotionTakenSoundFix_Settings_potionLostBuffSound.label:SetText("Sound: " .. PTSF.sounds[idx])
-                 if SOUNDS ~= nil then
+                 if SOUNDS ~= nil and not doNotPlaySound then
                    if(idx > 2 and SOUNDS[PTSF.sounds[idx]] ~= nil) then
-                    	PlaySound(SOUNDS[PTSF.sounds[idx]])
-                    end
+                       PTSF.D("Played: "..SOUNDS[PTSF.sounds[settings.potionLostBuffSound]])
+                       PlaySound(SOUNDS[PTSF.sounds[idx]])
+                   end
                  end
             end,
             default = defaults.potionLostBuffSound,
@@ -275,6 +277,7 @@ end --}}}
             settings.potionLostBuffVolumeBoost = idy
                 if(SOUNDS ~= nil and settings.potionLostBuffSound > 2 and SOUNDS[PTSF.sounds[settings.potionLostBuffSound]] ~= nil) then
                     for i = 1, idy do
+                       PTSF.D(i.."-LoopPlayed: "..SOUNDS[PTSF.sounds[settings.potionLostBuffSound]])
                        PlaySound(SOUNDS[PTSF.sounds[settings.potionLostBuffSound]])
                     end
                     lockSoundPlay_BuffLost = true
@@ -318,14 +321,14 @@ end --}}}
             getFunc = function()
                 return settings.potionCooldownEndedSound - 1
             end,
-            setFunc = function(idx)
+            setFunc = function(idx, doNotPlaySound)
                 idx = idx + 1 --Tricking the system so we don't use sound #1 as it's default potion sound
                 settings.potionCooldownEndedSound = idx
-                PTSF.D(SOUNDS[PTSF.sounds[idx]])
                 PotionTakenSoundFix_Settings_potionCooldownEndedSound.label:SetText("Sound: " .. PTSF.sounds[idx])
-                 if SOUNDS ~= nil then
+                 if SOUNDS ~= nil and not doNotPlaySound then --Minor bug: "Game's restore defaults" will play it twice since it doesn't throw our doNotPlaySound value
                    if(idx > 2 and SOUNDS[PTSF.sounds[idx]] ~= nil) then
                     	PlaySound(SOUNDS[PTSF.sounds[idx]])
+                    	PTSF.D("Played: "..SOUNDS[PTSF.sounds[settings.potionCooldownEndedSound]])
                     end
                  end
             end,
@@ -345,6 +348,7 @@ end --}}}
             settings.potionCooldownEndedVolumeBoost = idy
                 if(SOUNDS ~= nil and settings.potionCooldownEndedSound > 2 and SOUNDS[PTSF.sounds[settings.potionCooldownEndedSound]] ~= nil) then
                     for i = 1, idy do
+                       PTSF.D(i.."-LoopPlayed: "..SOUNDS[PTSF.sounds[settings.potionCooldownEndedSound]])
                        PlaySound(SOUNDS[PTSF.sounds[settings.potionCooldownEndedSound]])
                     end
                     lockSoundPlay_Cooldown = true
@@ -367,7 +371,7 @@ end --}}}
             type = "button",
             name = "Dev's Fav",
             tooltip = "Set |cFFA500"..addonVars.addonAuthor.."'s|r favorite values",
-            func = function() setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedSound, 3, true) setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedVolumeBoost, 4) end,
+            func = function() setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedSound, 26, true) setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedVolumeBoost, 4) end,
             width = "half",	--or "half" (optional)
             reference = "PotionTakenSoundFix_Settings_devPotionCooldownEndedButton",
         }, --}}}

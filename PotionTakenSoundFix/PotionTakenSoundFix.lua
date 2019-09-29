@@ -5,16 +5,17 @@ local PTSF = PotionTakenSoundFix
 --=============================================================================================================
 
 PTSF.addonVars =  {}
-PTSF.addonVars.addonRealVersion			= 1.00
+PTSF.addonVars.addonRealVersion			= 1.01
 PTSF.addonVars.addonSavedVarsVersion	= 1.00
+PTSF.addonVars.addonSavedVarsModeVersion= 1.00
 PTSF.addonVars.addonName				= "PotionTakenSoundFix"
 PTSF.addonVars.addonSavedVars			= "PotionTakenSoundFix_Settings"
 PTSF.addonVars.settingsName   			= "Potion Taken Sound Fix"
 PTSF.addonVars.settingsDisplayName   	= "|cFF0000Potion Taken|r|l0:1:0:5%:2:FF0000|l Sound Fix|l"
 PTSF.addonVars.addonAuthor				= "|c00BF9CTrader08|r"
-PTSF.addonVars.addonWebsite				= ""
-PTSF.addonVars.addonFeedback			= ""
-PTSF.addonVars.addonDonate				= "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=MGLYRE7N8VTEN&item_name=Support+this+addon+by+buying+me+a+skooma%21&currency_code=USD&source=url"
+PTSF.addonVars.addonWebsite				= "https://www.esoui.com/downloads/info2463-PotionTakenSoundFix.html"
+PTSF.addonVars.addonFeedback			= "https://www.esoui.com/downloads/info2463-PotionTakenSoundFix.html#comments"
+PTSF.addonVars.addonDonate				= "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=MGLYRE7N8VTEN&item_name=Support+"..PTSF.addonVars.addonName.."+by+buying+me+a+skooma%21&currency_code=USD&source=url"
 
 -- Debug
 PTSF.debug				= false
@@ -65,6 +66,16 @@ local function PTSF_addonLoaded(eventName, addon)
     settings = PTSF.settingsVars.settings
     defaults = PTSF.settingsVars.defaults
 	
+    --Check if this is a new install (we had no saved vars prior to this so the sound settings didn't go thru our "tricked" options menu)
+    if(tonumber(settings.potionLostBuffSound) <= 1 ) then --default is 1, but in reality it is sound 2 in our sounds table
+    	PTSF.D("Updating save values")
+    	settings.potionLostBuffSound = 2
+    	if(tonumber(settings.potionCooldownEndedSound) == tonumber(defaults.potionCooldownEndedSound)) then
+    		settings.potionCooldownEndedSound = settings.potionCooldownEndedSound + 1
+    		PTSF.D("Updated settings.potionCooldownEndedSound="..settings.potionCooldownEndedSound.." from default defaults.potionCooldownEndedSound="..defaults.potionCooldownEndedSound)
+    	end
+    end
+    
 	EVENT_MANAGER:UnregisterForEvent(eventName)
 	
 	--Update user's UI volume

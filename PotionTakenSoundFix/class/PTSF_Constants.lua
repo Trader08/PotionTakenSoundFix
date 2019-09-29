@@ -10,8 +10,10 @@ PTSF.addonMenu.isShown = false
 PTSF.addonMenu.isBuilt = false
 
 --Settings
-PTSF.settingsVars			= {}
-PTSF.settingsVars.defaults		= {}
-PTSF.settingsVars.settings		= {}
-PTSF.settingsVars.defaultSettings	= {}
-PTSF.localizationVars			= {}
+PTSF.settingsVars						= {}
+PTSF.settingsVars.defaults				= {}
+PTSF.settingsVars.settings				= {}
+PTSF.settingsVars.defaultSettings		= {}
+PTSF.localizationVars					= {}
+PTSF.settingsVars.settings.buffFilters	= {}
+PTSF.masterSwitch						= true

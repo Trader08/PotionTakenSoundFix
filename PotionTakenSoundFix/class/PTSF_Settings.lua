@@ -10,9 +10,6 @@ function PTSF.loadSettings()
         saveMode     		    = 2, --Standard: Account wide settings
     }
     PTSF.settingsVars.defaults = {
---        namesToIDSavedVars      		= false,
-
-        debug							= false,
 
         potionTakenSound				= 1, --default game sound
         potionTakenVolumeBoost			= 1, --default game volume
@@ -22,6 +19,8 @@ function PTSF.loadSettings()
         
         potionCooldownEndedSound		= 4, --ALCHEMY_SOLVENT_PLACED. "Game's restore defaults" will play it twice since it doesn't throw our doNotPlaySound value
         potionCooldownEndedVolumeBoost	= 1,
+        enableBuffFilter				= false,
+        buffFilters						= {},
     }
     --=============================================================================================================
     --	LOAD USER SETTINGS
@@ -41,6 +40,7 @@ function PTSF.loadSettings()
     else
         PTSF.settingsVars.settings = ZO_SavedVars:NewAccountWide(addonVars.addonSavedVars, addonVars.addonSavedVarsVersion, "Settings", defaults)
     end
+    PTSF.settingsVars.settings.debug = nil --Remove this value from users' savedvars from prior v1.02
     --=============================================================================================================
 end
 

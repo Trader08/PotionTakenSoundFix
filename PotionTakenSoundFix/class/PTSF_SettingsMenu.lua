@@ -11,10 +11,10 @@ function PTSF.buildAddonMenu()
     local settings =        PTSF.settingsVars.settings
     local defaults =        PTSF.settingsVars.defaults
     
-    local lockSoundPlay_Potion 		= false
-    local lockSoundPlay_BuffLost	= false
-    local lockSoundPlay_Cooldown 	= false
-
+    local lockSoundPlay_Potion 					= false
+    local lockSoundPlay_BuffLost				= false
+    local lockSoundPlay_Cooldown 				= false
+    local toggle_potion_buffs_check_enabled 	= false
     PTSF.panelData    = {
         type                = "panel",
         name                = addonVars.settingsName,
@@ -34,6 +34,13 @@ function PTSF.buildAddonMenu()
         [2] = "Account Wide",
     }
 
+    --Create our buffs list options
+    local PotionTakenSoundFix_Settings_Potionbufflostfilters_controls = {}
+    if PTSF.buffs then
+        for i, buffName in pairs(PTSF.buffs) do
+       		PotionTakenSoundFix_Settings_Potionbufflostfilters_controls[i] = { type = "checkbox", name = buffName, tooltip = PTSF.buffs_description[i], getFunc = function() return settings.buffFilters[buffName] end, setFunc = function(value)	if(value) then settings.buffFilters[buffName] = value else settings.buffFilters[buffName] = nil end end, default = false, width = "half", }
+        end
+    end
 --=============================================================================================================
 -- updateDisabledControl {{{
 --=============================================================================================================
@@ -106,7 +113,11 @@ end --}}}
             PotionTakenSoundFix_Settings_potionTakenVolumeBoost.warning:SetColor(1,0.65,0,1)
             PotionTakenSoundFix_Settings_potionLostBuffVolumeBoost.warning:SetColor(1,0.65,0,1)
             PotionTakenSoundFix_Settings_potionCooldownEndedVolumeBoost.warning:SetColor(1,0.65,0,1)
-
+            --Open the buff filters submenu
+            if(settings.enableBuffFilter and settings.potionLostBuffSound > 2) then
+            	PotionTakenSoundFix_Settings_Potionbufflostfilters.open = true
+               	PotionTakenSoundFix_Settings_Potionbufflostfilters.animation:PlayFromEnd()
+            end
         end
     end --}}}
     
@@ -127,7 +138,7 @@ end --}}}
             					.."-Add a custom sound when potion cooldown is over (you can take another one)\n"
             					.."-Volume booster for chosen sounds (few ones can't be boosted)|r",
         },
-
+        
         --=============================================================================================================
         -- Save mode {{{
         --=============================================================================================================
@@ -223,14 +234,14 @@ end --}}}
             name = "Addon's Default",
             tooltip = "Set this addon's default values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionTakenSound, PTSF.settingsVars.defaults.potionTakenSound, true) setControlValues(PotionTakenSoundFix_Settings_potionTakenVolumeBoost, PTSF.settingsVars.defaults.potionTakenVolumeBoost) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
         },
         {
             type = "button",
             name = "Dev's Fav",
             tooltip = "Set |cFFA500"..addonVars.addonAuthor.."'s|r favorite values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionTakenSound, 21, true) setControlValues(PotionTakenSoundFix_Settings_potionTakenVolumeBoost, 2) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
             reference = "PotionTakenSoundFix_Settings_devPotionTakenButton",
         }, --}}}
 
@@ -254,6 +265,11 @@ end --}}}
                 idx = idx + 1 --Tricking the system so we don't use sound #1 as it's default potion sound
                 settings.potionLostBuffSound = idx
                 PotionTakenSoundFix_Settings_potionLostBuffSound.label:SetText("Sound: " .. PTSF.sounds[idx])
+                --Update our buff list submenu
+                if(idx > 2 and settings.enableBuffFilter and not PotionTakenSoundFix_Settings_Potionbufflostfilters.open) then
+               		PotionTakenSoundFix_Settings_Potionbufflostfilters.open = true
+               		PotionTakenSoundFix_Settings_Potionbufflostfilters.animation:PlayFromEnd()
+                end
                  if SOUNDS ~= nil and not doNotPlaySound then
                    if(idx > 2 and SOUNDS[PTSF.sounds[idx]] ~= nil) then
                        PTSF.D("Played: "..SOUNDS[PTSF.sounds[settings.potionLostBuffSound]])
@@ -294,16 +310,40 @@ end --}}}
             name = "Addon's Default",
             tooltip = "Set this addon's default values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionLostBuffSound, PTSF.settingsVars.defaults.potionLostBuffSound, true) setControlValues(PotionTakenSoundFix_Settings_potionLostBuffVolumeBoost, PTSF.settingsVars.defaults.potionLostBuffVolumeBoost) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
         },
         {
             type = "button",
             name = "Dev's Fav",
             tooltip = "Set |cFFA500"..addonVars.addonAuthor.."'s|r favorite values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionLostBuffSound, 5, true) setControlValues(PotionTakenSoundFix_Settings_potionLostBuffVolumeBoost, 6) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
             reference = "PotionTakenSoundFix_Settings_devPotionLostBuffButton",
-        }, --}}}
+        },
+            {
+            	type = "checkbox",
+            	name = "Enable Potion buffs filters",
+            	tooltip = "Enabling this will play the buff lost sound ONLY for selected filters",
+            	getFunc = function() return settings.enableBuffFilter end,
+            	setFunc = function(value)
+               		settings.enableBuffFilter = value
+               		if(value) then --Open the buff filters submenu
+               			PotionTakenSoundFix_Settings_Potionbufflostfilters.open = true
+               			PotionTakenSoundFix_Settings_Potionbufflostfilters.animation:PlayFromEnd()
+               		end
+               	end,
+               	disabled = function() return settings.potionLostBuffSound <= 2 end,
+               	default = defaults.enableBuffFilter,
+               	width = "full",
+            },
+        {
+            type = "submenu",
+            name = "Potion buff lost filters",
+            tooltip = "Allows filtering lost potion buff sound to play for specific buffs only",
+            disabled = function() return not settings.enableBuffFilter or settings.potionLostBuffSound <= 2 end,
+            reference = "PotionTakenSoundFix_Settings_Potionbufflostfilters",
+            controls = PotionTakenSoundFix_Settings_Potionbufflostfilters_controls,
+        }, --submenu
 
         --=============================================================================================================
         -- Potion Cooldown Ended {{{
@@ -365,16 +405,70 @@ end --}}}
             name = "Addon's Default",
             tooltip = "Set this addon's default values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedSound, PTSF.settingsVars.defaults.potionCooldownEndedSound, true) setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedVolumeBoost, PTSF.settingsVars.defaults.potionCooldownEndedVolumeBoost) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
         },
         {
             type = "button",
             name = "Dev's Fav",
             tooltip = "Set |cFFA500"..addonVars.addonAuthor.."'s|r favorite values",
             func = function() setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedSound, 26, true) setControlValues(PotionTakenSoundFix_Settings_potionCooldownEndedVolumeBoost, 4) end,
-            width = "half",	--or "half" (optional)
+            width = "half",
             reference = "PotionTakenSoundFix_Settings_devPotionCooldownEndedButton",
         }, --}}}
+        --=============================================================================================================
+        -- Debug {{{
+        --=============================================================================================================
+        {
+        	type = "divider",
+        	width = "full",
+        	height = 40,
+        	alpha = 1,
+        },
+        {
+            type = "submenu",
+            name = "Debug",
+            tooltip = "Debug options, use if requested. None of those options are permanent (They don't save when reloading the game or between reloadui)",
+            controls = {
+            {
+            	type = "checkbox",
+            	name = "Master switch",
+            	tooltip = "Turn off this addon's functionalities (sound fix along with custom sounds etc).",
+            	getFunc = function() return PTSF.masterSwitch end,
+            	setFunc = function(value)
+               		PTSF.masterSwitch = value
+               		if (value) then --only preHook is kept
+               			PTSF.libPB:RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF_potTaken, REGISTER_FILTER_UNIT_TAG, "player")
+               			PTSF.DG("Master Switch is |c00FF00ON|r")
+               		else
+               			PTSF.libPB:UnRegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName)
+               			PTSF.D("Master Switch is |cFF0000OFF|r (default sound without fix will play)", true)
+               		end
+               	end,
+               	default = true,
+               	width = "half",
+            },
+            {
+            	type = "checkbox",
+            	name = "Unknown Potion Buffs Finder",
+            	tooltip = "Debug option, use if requested. Activating this will display potion buffs in chat by using an alternative way of tracking potion buffs.\n\n"
+            			.."INSTRUCTIONS:\n"
+            			.."If you have no potion taken sound and/or no lost buff sound for a specific potion,\n"
+            			.."1- Enable this option and please let your buffs run out and don't re-buff yourself with any ability\n"
+            			.."2- Use that specific potion, you'll see debug lines in chat\n"
+            			.."3- Click on the potion link to show which potion it is and ideally take a screen shot of the chat lines along with the potion tooltip\n"
+            			.."4- Post the screen shot on ESOUI, you can use the 'feedback' button up top of this options' menu\n"
+            			.."5- You can now disable this option and wait for a fix\n\n"
+            			.."Thank you!",
+            	getFunc = function() return toggle_potion_buffs_check_enabled end,
+            	setFunc = function(value)
+                	toggle_potion_buffs_check_enabled = value
+                	PTSF_toggle_potion_buffs_check(value)
+                end,
+                default = toggle_potion_buffs_check_enabled,
+                width = "half",
+            },
+            }, --controls
+        }, --submenu
     } --}}}
     PTSF.addonMenuPanel = PTSF.addonMenu:RegisterAddonPanel("PotionTakenSoundFix_SettingsMenu", PTSF.panelData)
     PTSF.addonMenu:RegisterOptionControls("PotionTakenSoundFix_SettingsMenu", PTSF.optionsData)

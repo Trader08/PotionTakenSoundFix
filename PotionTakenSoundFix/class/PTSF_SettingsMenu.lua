@@ -134,7 +134,7 @@ end --}}}
             text              = "|cFFFF00Fixes potion sound to ONLY play when successfully taken.\n"
             					.."Also adds the ability to:\n"
             					.."-Change the potion taken sound\n"
-            					.."-Add a custom sound when you lose a potion buff\n"
+            					.."-Add a custom sound when you lose a potion buff with optional buff filters\n"
             					.."-Add a custom sound when potion cooldown is over (you can take another one)\n"
             					.."-Volume booster for chosen sounds (few ones can't be boosted)|r",
         },
@@ -323,7 +323,7 @@ end --}}}
             {
             	type = "checkbox",
             	name = "Enable Potion buffs filters",
-            	tooltip = "Enabling this will play the buff lost sound ONLY for selected filters",
+            	tooltip = "Enabling this will play the buff lost sound ONLY for selected buffs",
             	getFunc = function() return settings.enableBuffFilter end,
             	setFunc = function(value)
                		settings.enableBuffFilter = value

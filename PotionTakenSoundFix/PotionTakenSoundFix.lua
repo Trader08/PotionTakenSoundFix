@@ -17,8 +17,6 @@ PTSF.addonVars.addonWebsite				= "https://www.esoui.com/downloads/info2463-Potio
 PTSF.addonVars.addonFeedback			= "https://www.esoui.com/downloads/info2463-PotionTakenSoundFix.html#comments"
 PTSF.addonVars.addonDonate				= "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=MGLYRE7N8VTEN&item_name=Support+"..PTSF.addonVars.addonName.."+by+buying+me+a+skooma%21&currency_code=USD&source=url"
 
--- Debug
-PTSF.debug				= false
 --}}}
 
 --=============================================================================================================
@@ -135,10 +133,10 @@ end --}}}
 --	Potion Taken handler {{{
 --=============================================================================================================
 
-function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime) --, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
+function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
 --(integer eventCode, integer changeType, integer effectSlot, string effectName, string unitTag, number beginTime, number endTime, integer stackCount, string iconName, string buffType, integer effectType, integer abilityType, integer statusEffectType, string unitName, integer unitId, integer abilityId, integer sourceUnitType
-	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime)) --.." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
---	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType))
+	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime).." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
+	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType))
 	if(unitTag ~= "player") then
 	     PTSF.D("PTSF_potTaken triggered not on player")
 	     return
@@ -154,7 +152,7 @@ function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, b
 
 	elseif(unitTag == "player" and changeType == 2 and not isPlayingPotionLostBuff) then --Any potion Buff lost
 		if(settings.enableBuffFilter) then
-			if(settings.buffFilters[effectName]) then
+			if(settings.buffFilters[PTSF.buffs_abilityIds[abilityId]]) then
 				PTSF.PlaySound("potionLostBuff")
 			end
 		else

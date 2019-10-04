@@ -9,6 +9,9 @@ PTSF.addonMenu = {}
 PTSF.addonMenu.isShown = false
 PTSF.addonMenu.isBuilt = false
 
+-- Debug
+PTSF.debug				= false
+
 --Settings
 PTSF.settingsVars						= {}
 PTSF.settingsVars.defaults				= {}

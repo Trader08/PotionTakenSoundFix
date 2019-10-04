@@ -37,8 +37,17 @@ function PTSF.buildAddonMenu()
     --Create our buffs list options
     local PotionTakenSoundFix_Settings_Potionbufflostfilters_controls = {}
     if PTSF.buffs then
-        for i, buffName in pairs(PTSF.buffs) do
-       		PotionTakenSoundFix_Settings_Potionbufflostfilters_controls[i] = { type = "checkbox", name = buffName, tooltip = PTSF.buffs_description[i], getFunc = function() return settings.buffFilters[buffName] end, setFunc = function(value)	if(value) then settings.buffFilters[buffName] = value else settings.buffFilters[buffName] = nil end end, default = false, width = "half", }
+        for i, buff in pairs(PTSF.buffs) do
+       		PotionTakenSoundFix_Settings_Potionbufflostfilters_controls[i] = 
+       		{
+       			type = "checkbox",
+       			name = buff.name,
+       			tooltip = buff.description,
+       			getFunc = function() return settings.buffFilters[buff.name] end,
+       			setFunc = function(value)	if(value) then settings.buffFilters[buff.name] = value else settings.buffFilters[buff.name] = nil end end,
+       			default = false,
+       			width = "half",
+       		}
         end
     end
 --=============================================================================================================
@@ -316,7 +325,7 @@ end --}}}
             type = "button",
             name = "Dev's Fav",
             tooltip = "Set |cFFA500"..addonVars.addonAuthor.."'s|r favorite values",
-            func = function() setControlValues(PotionTakenSoundFix_Settings_potionLostBuffSound, 5, true) setControlValues(PotionTakenSoundFix_Settings_potionLostBuffVolumeBoost, 6) end,
+            func = function() setControlValues(PotionTakenSoundFix_Settings_potionLostBuffSound, 18, true) setControlValues(PotionTakenSoundFix_Settings_potionLostBuffVolumeBoost, 3) end,
             width = "half",
             reference = "PotionTakenSoundFix_Settings_devPotionLostBuffButton",
         },

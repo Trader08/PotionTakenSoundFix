@@ -136,7 +136,8 @@ end --}}}
 function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
 --(integer eventCode, integer changeType, integer effectSlot, string effectName, string unitTag, number beginTime, number endTime, integer stackCount, string iconName, string buffType, integer effectType, integer abilityType, integer statusEffectType, string unitName, integer unitId, integer abilityId, integer sourceUnitType
 	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime).." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
-	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType))
+	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType)
+	.."\n")
 	if(unitTag ~= "player") then
 	     PTSF.D("PTSF_potTaken triggered not on player")
 	     return
@@ -145,8 +146,15 @@ function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, b
 	    --PTSF.DecreaseUIVolume()
 	    potionCooldown_ms = libPB:GetPotionSlotCooldown(PTSF.debug) --potion cooldown from currently selected quickslot
         PTSF.PlaySound("potionTaken")
+        
+        --[[In case we use a potion that gives buffs you already have, prevent the lost buff sound to play
+        	because using a potion that will "renew" your buffs, it removes the old (so you lose it) and creates a new one.
+        	The only bug this might cause is if we actually lose a buff from another potion @ the same time
+        	Quite rare and both pot taken and lost buff sounds would play simultaneously anyway--]]
+	 	isPlayingPotionLostBuff = true
+	 	zo_callLater(function() isPlayingPotionLostBuff = false end, PlaySoundLockDelay)
 	    
-	    --Since we can know the potion duration from the currently selected quickslot and we know we just took a potion and had to be doing it from a quickslot, assume we got the cooldown right.
+	    --Since we know the potion duration from the currently selected quickslot and we know we just took a potion and had to be doing it from a quickslot, assume we got the cooldown right.
 	    --So we're delay calling the "potion cooldown ended" sound after that said cooldown
 	    zo_callLater(function() PTSF.PlaySound("potionCooldownEnded") end, potionCooldown_ms)
 
@@ -348,18 +356,6 @@ function PTSF.initialize()
 	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_PLAYER_ACTIVATED, PTSF_Player_Activated)
 	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_ADD_ON_LOADED, PTSF_addonLoaded)
 	SLASH_COMMANDS["/ptsf"] = onArgCommand
-end --}}}
-
---=============================================================================================================
---	Debug functions {{{
---=============================================================================================================
-function PTSF.D(message, force)
-    if(PTSF.debug or force) then
-        d("|cFF0000["..PTSF.addonVars.addonName.."]|r "..tostring(message))
-    end
-end
-function PTSF.DG(message)
-    d("|c00FF00["..PTSF.addonVars.addonName.."]|r "..tostring(message))
 end --}}}
 
 --Initialize the addon

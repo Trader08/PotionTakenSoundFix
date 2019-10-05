@@ -143,7 +143,7 @@ end --}}}
             text              = "|cFFFF00Fixes potion sound to ONLY play when successfully taken.\n"
             					.."Also adds the ability to:\n"
             					.."-Change the potion taken sound\n"
-            					.."-Add a custom sound when you lose a potion buff with optional buff filters\n"
+            					.."-Add a custom sound when you lose a potion buff|r |c00FF00NEW: with optional buff filters|r\n|cFFFF00"
             					.."-Add a custom sound when potion cooldown is over (you can take another one)\n"
             					.."-Volume booster for chosen sounds (few ones can't be boosted)|r",
         },
@@ -475,6 +475,22 @@ end --}}}
                 end,
                 default = PTSF.toggle_potion_buffs_check_enabled,
                 width = "half",
+            },
+            {
+            	type = "checkbox",
+            	name = "Debug",
+            	tooltip = "Toggle debug to chat. Mainly used for dev",
+            	getFunc = function() return PTSF.debug end,
+            	setFunc = function(value)
+               		PTSF.debug = value
+               		if (value) then --only preHook is kept
+               			PTSF.D("Debug is |c00FF00ON|r", true)
+               		else
+               			PTSF.D("Debug is |cFF0000OFF|r", true)
+               		end
+               	end,
+               	default = false,
+               	width = "half",
             },
             }, --controls
         }, --submenu

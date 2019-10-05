@@ -21,3 +21,15 @@ PTSF.localizationVars					= {}
 PTSF.settingsVars.settings.buffFilters	= {}
 PTSF.masterSwitch						= true
 PTSF.toggle_potion_buffs_check_enabled	= false
+
+--=============================================================================================================
+--	Debug functions {{{ They're here since this is the 1st file loading
+--=============================================================================================================
+function PTSF.D(message, force)
+    if(PTSF.debug or force) then
+        d("|cFF0000["..PTSF.addonVars.addonName.."]|r "..tostring(message))
+    end
+end
+function PTSF.DG(message)
+    d("|c00FF00["..PTSF.addonVars.addonName.."]|r "..tostring(message))
+end --}}}

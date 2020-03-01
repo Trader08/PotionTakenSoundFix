@@ -143,7 +143,7 @@ end --}}}
             text              = "|cFFFF00Fixes potion sound to ONLY play when successfully taken.\n"
             					.."Also adds the ability to:\n"
             					.."-Change the potion taken sound\n"
-            					.."-Add a custom sound when you lose a potion buff|r |c00FF00NEW: with optional buff filters|r\n|cFFFF00"
+            					.."-Add a custom sound when you lose a potion buff with optional buff filters\n"
             					.."-Add a custom sound when potion cooldown is over (you can take another one)\n"
             					.."-Volume booster for chosen sounds (few ones can't be boosted)|r",
         },
@@ -446,7 +446,7 @@ end --}}}
             	setFunc = function(value)
                		PTSF.masterSwitch = value
                		if (value) then --only preHook is kept
-               			PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF_potTaken, REGISTER_FILTER_UNIT_TAG, "player")
+               			PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF.potTaken, REGISTER_FILTER_UNIT_TAG, "player")
                			PTSF.DG("Master Switch is |c00FF00ON|r")
                		else
                			PTSF.UnRegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName)
@@ -471,7 +471,7 @@ end --}}}
             	getFunc = function() return PTSF.toggle_potion_buffs_check_enabled end,
             	setFunc = function(value)
                 	PTSF.toggle_potion_buffs_check_enabled = value
-                	PTSF_toggle_potion_buffs_check(value)
+                	PTSF.toggle_potion_buffs_check(value)
                 end,
                 default = PTSF.toggle_potion_buffs_check_enabled,
                 width = "half",

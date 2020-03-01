@@ -1,9 +1,9 @@
 ## Title: Potion Taken Sound Fix
 ## Description: Fixes potion sound to ONLY play when successfully taken. Also adds the ability to: 1-Change the potion taken sound 2-Add a sound when you lose a potion buff 3-Add a sound when you can take another one 4-Volume booster for chosen sounds.
 ## Author: Trader08
-## Version: 1.03
-## AddOnVersion: 103
-## APIVersion: 100028 100029
+## Version: 1.04
+## AddOnVersion: 104
+## APIVersion: 100030
 ## SavedVariables: PotionTakenSoundFix_Settings
 ## DependsOn: LibAddonMenu-2.0 LibPotionBuff
 

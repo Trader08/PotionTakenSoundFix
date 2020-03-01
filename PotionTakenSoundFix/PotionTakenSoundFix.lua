@@ -5,7 +5,7 @@ local PTSF = PotionTakenSoundFix
 --=============================================================================================================
 
 PTSF.addonVars =  {}
-PTSF.addonVars.addonRealVersion			= 1.03
+PTSF.addonVars.addonRealVersion			= 1.04
 PTSF.addonVars.addonRealVersionPreText  = "" --Release is empty string. Pre-Release = "PR " and Release Candicate = "RC "
 PTSF.addonVars.addonSavedVarsVersion	= 1.00
 PTSF.addonVars.addonSavedVarsModeVersion= 1.00
@@ -33,7 +33,7 @@ if libPB == nil and LibStub then libPB = LibStub:GetLibrary("LibPotionBuff") end
 PTSF.libPB = libPB --]]
 --LibAddonMenu-2.0
 PTSF.addonMenu = LibAddonMenu2
-if PTSF.addonMenu == nil and LibStub then PTSF.addonMenu = LibStub:GetLibrary("LibAddonMenu-2.0") end --deprecated
+--if PTSF.addonMenu == nil and LibStub then PTSF.addonMenu = LibStub:GetLibrary("LibAddonMenu-2.0") end --deprecated
 --}}}
 
 --=============================================================================================================
@@ -84,7 +84,7 @@ local function PTSF_addonLoaded(eventName, addon)
 	--Update user's UI volume
 --	userInterfaceVolume = tonumber(GetSetting(SETTING_TYPE_AUDIO, AUDIO_SETTING_UI_VOLUME)) --tempo
 	
-	PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF_potTaken, REGISTER_FILTER_UNIT_TAG, "player") --Only on self (player)
+	PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF.potTaken, REGISTER_FILTER_UNIT_TAG, "player") --Only on self (player)
 	
 	-- Not a dependency, but for those who have libLoadedAddon loaded as a library, why not
 	if(PTSF.libLA) then
@@ -117,7 +117,7 @@ end --}}}
 --	Player Activated (load hooks and build addon menu) {{{
 --=============================================================================================================
 
-function PTSF_Player_Activated(...)
+function PTSF.Player_Activated(...)
 	--Prevent this event to be fired over and over on zone changes
 	EVENT_MANAGER:UnregisterForEvent(PTSF.addonVars.addonName, EVENT_PLAYER_ACTIVATED)
 
@@ -134,13 +134,13 @@ end --}}}
 --	Potion Taken handler {{{
 --=============================================================================================================
 
-function PTSF_potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
+function PTSF.potTaken(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceUnitType)
 --(integer eventCode, integer changeType, integer effectSlot, string effectName, string unitTag, number beginTime, number endTime, integer stackCount, string iconName, string buffType, integer effectType, integer abilityType, integer statusEffectType, string unitName, integer unitId, integer abilityId, integer sourceUnitType
 	PTSF.D("eventCode="..tostring(eventCode).." changeType="..tostring(changeType).." effectSlot="..tostring(effectSlot).." effectName="..tostring(effectName).." unitTag="..tostring(unitTag).." beginTime="..tostring(beginTime).." endTime="..tostring(endTime).." stackCount="..tostring(stackCount).." iconName="..tostring(iconName)
 	.." buffType="..tostring(buffType).." effectType="..tostring(effectType).." abilityType="..tostring(abilityType).." statusEffectType="..tostring(statusEffectType).." unitName="..tostring(unitName).." unitId="..tostring(unitId).." abilityId="..tostring(abilityId).." sourceUnitType="..tostring(sourceUnitType)
 	.."\n")
 	if(unitTag ~= "player") then
-	     PTSF.D("PTSF_potTaken triggered not on player")
+	     PTSF.D("PTSF.potTaken triggered not on player")
 	     return
 	end
 	if(changeType == 1 and unitTag == "player" and beginTime > 0 and endTime > 0) then --changeType = 1 seems to be gained while = 2 lost. beginTime and endTime always return a float value when we just took a potion. Else they return no value or 0 and it's called when pot buffs run out
@@ -248,11 +248,11 @@ end --}}}
 --=============================================================================================================
 --	NEW 1.02 Unknown Potion Buffs Finder {{{
 --=============================================================================================================
-function PTSF_toggle_potion_buffs_check(enable)
+function PTSF.toggle_potion_buffs_check(enable)
 	if(enable) then
-    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, PTSF_INVENTORY_SINGLE_SLOT_UPDATE)
-    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_ITEM_USED, PTSF_INVENTORY_ITEM_USED)
-    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_EFFECT_CHANGED, PTSF_EFFECT_CHANGED) --Not using a different name because libPotionBuff' EVENT_EFFECT_CHANGED creates different ones
+    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, PTSF.INVENTORY_SINGLE_SLOT_UPDATE)
+    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_ITEM_USED, PTSF.INVENTORY_ITEM_USED)
+    	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_EFFECT_CHANGED, PTSF.EFFECT_CHANGED) --Not using a different name because libPotionBuff' EVENT_EFFECT_CHANGED creates different ones
     	PTSF.DG("Unknown Potion Buffs Finder is |c00FF00ON|r")
     else
     	EVENT_MANAGER:UnregisterForEvent(PTSF.addonVars.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
@@ -265,8 +265,8 @@ end
 local counter = 1
 local tookPotionCheck = 0
 
--- PTSF_INVENTORY_ITEM_USED {{{
-function PTSF_INVENTORY_ITEM_USED(eventCode, itemSoundCategory)
+-- PTSF.INVENTORY_ITEM_USED {{{
+function PTSF.INVENTORY_ITEM_USED(eventCode, itemSoundCategory)
 --EVENT_INVENTORY_ITEM_USED (*integer* _itemSoundCategory_)
 --This one gets called 1st but gets called as a false positive if potion is on gcd
 	if itemSoundCategory == ITEM_SOUND_CATEGORY_POTION then
@@ -280,8 +280,8 @@ function PTSF_INVENTORY_ITEM_USED(eventCode, itemSoundCategory)
     end
 end
 --}}}
--- PTSF_INVENTORY_SINGLE_SLOT_UPDATE {{{
-function PTSF_INVENTORY_SINGLE_SLOT_UPDATE(eventCode, bagId, slotId, isNewItem, itemSoundCategory, updateReason)
+-- PTSF.INVENTORY_SINGLE_SLOT_UPDATE {{{
+function PTSF.INVENTORY_SINGLE_SLOT_UPDATE(eventCode, bagId, slotId, isNewItem, itemSoundCategory, updateReason)
 --(*integer* _bagId_, *integer* _slotId_, *bool* _isNewItem_, *integer* _itemSoundCategory_, *integer* _updateReason_)
 --Gets called when successfully taking a potion but also if we loot/deposit/withdraw/etc any potion. In other words, any potion change in inventory
 	if itemSoundCategory == ITEM_SOUND_CATEGORY_POTION and tookPotionCheck ~= 0 then
@@ -292,8 +292,8 @@ function PTSF_INVENTORY_SINGLE_SLOT_UPDATE(eventCode, bagId, slotId, isNewItem, 
     end
 end
 --}}}
--- PTSF_EFFECT_CHANGED {{{
-function PTSF_EFFECT_CHANGED(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, StatusEffectType, unitName, unitId, abilityId, sourceUnitType)
+-- PTSF.EFFECT_CHANGED {{{
+function PTSF.EFFECT_CHANGED(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, StatusEffectType, unitName, unitId, abilityId, sourceUnitType)
 --(integer eventCode, integer changeType, integer effectSlot, string effectName, string unitTag, number beginTime, number endTime, integer stackCount, string iconName, string buffType, integer effectType, integer abilityType, integer statusEffectType, string unitName, integer unitId, integer abilityId, integer sourceUnitType
 	if(tookPotionCheck ~= 0 and unitTag == "player" and string.find(iconName, "achievement") == nil and string.find(effectName, "Dodge Fatigue") == nil) then --We filter to not display achievement buffs nor dodge fatique (roll dodged then used a potion)
 		counter = counter + 1
@@ -348,7 +348,7 @@ function PTSF.GetPotionSlotCooldown(chatOutput)
     --Get the quicklsot index slot ID (quickslot index) = 9
     local remain, duration = GetSlotCooldownInfo(GetCurrentQuickslot())
     if chatOutput then
-        D("Potion cooldown active, remaining: " .. tostring(remain) .. " of " .. tostring(duration))
+        PTSF.D("Potion cooldown active, remaining: " .. tostring(remain) .. " of " .. tostring(duration))
     end
     return remain, duration
 end
@@ -356,7 +356,7 @@ end
 --=============================================================================================================
 --	onArgCommand (command lines) {{{
 --=============================================================================================================
-function onArgCommand(arg)
+function PTSF.onArgCommand(arg)
 --	if(arg == "" or arg == "help" or string.find(arg, "-") == 1) then
 
 	if(string.lower(arg) == "master_switch") then
@@ -365,13 +365,13 @@ function onArgCommand(arg)
         	PTSF.D("Master Switch is |cFF0000OFF|r (default sound without fix will play)", true)
         	PTSF.masterSwitch = false
         else
-        	PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF_potTaken, REGISTER_FILTER_UNIT_TAG, "player")
+        	PTSF.RegisterAbilityIdsFilterOnEventEffectChanged(PTSF.addonVars.addonName, PTSF.potTaken, REGISTER_FILTER_UNIT_TAG, "player")
             PTSF.DG("Master Switch is |c00FF00ON|r")
             PTSF.masterSwitch = true
         end
     elseif(string.lower(arg) == "buffs_finder") then
     	PTSF.toggle_potion_buffs_check_enabled = not PTSF.toggle_potion_buffs_check_enabled
-        PTSF_toggle_potion_buffs_check(PTSF.toggle_potion_buffs_check_enabled)
+        PTSF.toggle_potion_buffs_check(PTSF.toggle_potion_buffs_check_enabled)
     elseif(string.lower(arg) == "debug") then
     	PTSF.debug = not PTSF.debug
     	if(PTSF.debug) then
@@ -410,9 +410,9 @@ end --}}}]]
 --=============================================================================================================
 
 function PTSF.initialize()
-	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_PLAYER_ACTIVATED, PTSF_Player_Activated)
+	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_PLAYER_ACTIVATED, PTSF.Player_Activated)
 	EVENT_MANAGER:RegisterForEvent(PTSF.addonVars.addonName, EVENT_ADD_ON_LOADED, PTSF_addonLoaded)
-	SLASH_COMMANDS["/ptsf"] = onArgCommand
+	SLASH_COMMANDS["/ptsf"] = PTSF.onArgCommand
 end --}}}
 
 --Initialize the addon
